@@ -44,18 +44,13 @@ void prepare_for_next_redirection(sh_t *sh, char const io[2],
 
 char init_redirection(sh_t *sh, char const io[2], char const inverse[2])
 {
-    static char (*redirection[5]) (int (*)[2], char const * const *,
-                                char const, char const) =
-        {&my_pipe, &right_chevron, &double_right_chevron,
-        &left_chevron, &double_left_chevron};
+    static char (*redirection[5]) (int (*)[2], char const * const *, char const, char const) =
+        {&my_pipe, &right_chevron, &double_right_chevron, &left_chevron, &double_left_chevron};
     char is_there_a_command = 0;
 
-    if (io[out] >= 0) is_there_a_command = redirection[io[out]](
-        &(sh->fd[((inverse[out] == false) ? (sh->current_fd) : (sh->old_fd))]),
-        (char const * const *)sh->cur_cmd,
-        ((inverse[out] == false) ? (write_) : (read_)), io[in]);
-    if (io[in] >= 0) is_there_a_command = redirection[io[in]](
-        &(sh->fd[sh->old_fd]), (char const * const *)sh->cur_cmd,
+    if (io[out] >= 0) is_there_a_command = redirection[io[out]](&(sh->fd[((inverse[out] == false) ? (sh->current_fd) : (sh->old_fd))]),
+        (char const * const *)sh->cur_cmd, ((inverse[out] == false) ? (write_) : (read_)), io[in]);
+    if (io[in] >= 0) is_there_a_command = redirection[io[in]](&(sh->fd[sh->old_fd]), (char const * const *)sh->cur_cmd,
         ((inverse[in] == false) ? (read_) : (write_)), io[out]);
     return ((io[out] < 0 && io[in] < 0) ? (THERE_IS_A_COMMAND) :
                                         (is_there_a_command));
